@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var monthLabel: UILabel!
     @IBOutlet weak var calendar: JTAppleCalendarView!
     @IBOutlet weak var collectionViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var scrollViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var expandingView: UIView!
     @IBOutlet var filterButtons: [UIButton]!
     
@@ -91,13 +92,17 @@ class ViewController: UIViewController {
             let velocity = sender.velocity(in: view)
             if velocity.y <= -800 {
                 self.collectionViewHeightConstraint.constant = 0
+                self.scrollViewHeightConstraint.constant = 646
             } else if velocity.y >= 800 {
                 self.collectionViewHeightConstraint.constant = 280
+                self.scrollViewHeightConstraint.constant = 684
             } else {
                 if self.collectionViewHeightConstraint.constant >= (280 / 2) {
                     self.collectionViewHeightConstraint.constant = 280
+                    self.scrollViewHeightConstraint.constant = 684
                 } else {
                     self.collectionViewHeightConstraint.constant = 0
+                    self.scrollViewHeightConstraint.constant = 646
                 }
             }
             UIView.animate(withDuration: 0.3, animations: {
