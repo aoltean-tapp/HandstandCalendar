@@ -14,9 +14,12 @@ class ViewController: UIViewController {
     @IBOutlet weak var selectedDateLabel: UILabel!
     @IBOutlet weak var monthLabel: UILabel!
     @IBOutlet weak var calendar: JTAppleCalendarView!
+    @IBOutlet weak var collectionViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var expandingView: UIView!
     @IBOutlet var filterButtons: [UIButton]!
     
     fileprivate var selectedButton: UIButton?
+    fileprivate var previousTouchPoint: CGPoint?
     
     fileprivate var selectedDate = Date()
     
@@ -62,6 +65,44 @@ class ViewController: UIViewController {
             } else {
                 cell.eventsView.isHidden = true
             }
+        }
+    }
+    
+    @IBAction func didPanExpandingView(_ sender: UIPanGestureRecognizer) {
+        if sender.state == .began {
+            previousTouchPoint = sender.location(in: view)
+        } else if sender.state == .changed {
+            let currentTouchPoint = sender.location(in: view)
+            if currentTouchPoint.y > view.frame.origin.y {
+                if let previousTouchPoint = previousTouchPoint {
+                    let heightDifference = currentTouchPoint.y - previousTouchPoint.y
+                    if collectionViewHeightConstraint.constant + heightDifference <= 280 {
+                        if collectionViewHeightConstraint.constant + heightDifference >= 0 {
+                            collectionViewHeightConstraint.constant += heightDifference
+                        } else {
+                            collectionViewHeightConstraint.constant = 0
+                        }
+                        self.view.layoutIfNeeded()
+                    }
+                }
+            }
+            previousTouchPoint = currentTouchPoint
+        } else if sender.state == .ended {
+            let velocity = sender.velocity(in: view)
+            if velocity.y <= -800 {
+                self.collectionViewHeightConstraint.constant = 0
+            } else if velocity.y >= 800 {
+                self.collectionViewHeightConstraint.constant = 280
+            } else {
+                if self.collectionViewHeightConstraint.constant >= (280 / 2) {
+                    self.collectionViewHeightConstraint.constant = 280
+                } else {
+                    self.collectionViewHeightConstraint.constant = 0
+                }
+            }
+            UIView.animate(withDuration: 0.3, animations: {
+                self.view.layoutIfNeeded()
+            })
         }
     }
 }
